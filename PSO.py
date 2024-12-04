@@ -604,8 +604,7 @@ class NewtonMethod(OptimizationAlgorithm):
         self.positions = [x_current.copy()]
         self.times = [0]
 
-        # Define callback function
-        def callback(xk):
+        def callback(xk, state=None):
             self.iteration += 1
             current_time = time.time() - start_time
             value = self.objective_func(xk)
@@ -827,7 +826,6 @@ def run_comparison_mode(objective_func, bounds, max_iter, constr_funcs, analytic
     newton.optimize()
     print("Running BFGS Method...")
     bfgs.optimize()
-
 
 # Main execution
 if __name__ == "__main__":
