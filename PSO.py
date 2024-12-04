@@ -174,7 +174,7 @@ class PSO(OptimizationAlgorithm):
         start_time = time.time()
 
         # Adjust figure layout
-        fig = plt.figure(figsize=(15, 6))
+        fig = plt.figure(figsize=(15, 6)) 
         gs = fig.add_gridspec(1, 3, width_ratios=[0.8, 5, 1.2])
 
         # Left axis for static text
@@ -188,6 +188,9 @@ class PSO(OptimizationAlgorithm):
         # Middle axis for the animation
         ax = fig.add_subplot(gs[1])
         ax.set_box_aspect(1)  # Set aspect ratio to 1:1
+
+        # Adjust the subplot parameters to reduce left margin
+        plt.subplots_adjust(left=0.05, right=0.95, wspace=0.1)
 
         if self.dimensions == 2:
             x_min, x_max = self.bounds[0]
@@ -319,6 +322,23 @@ class PSO(OptimizationAlgorithm):
             contour = ax.contourf(X, Y, Z, levels=50, cmap='viridis')
             plt.colorbar(contour, ax=ax)
 
+            # **Add the constraint boundaries here**
+            if self.constr_funcs:
+                constraint_handles = []
+                constraint_labels = []
+                constraint_colors = ['white', 'yellow']  # Use different colors if you have more constraints
+                for idx, constr_func in enumerate(self.constr_funcs):
+                    # Evaluate the constraint function over the grid
+                    constraint_values = np.array([constr_func([x_val, y_val]) for x_val, y_val in zip(X.flatten(), Y.flatten())])
+                    constraint_values = constraint_values.reshape(X.shape)
+                    # Plot the zero level contour of the constraint function
+                    contour_set = ax.contour(X, Y, constraint_values, levels=[0], 
+                                            colors=constraint_colors[idx % len(constraint_colors)], 
+                                            linewidths=2, linestyles='dashed')
+                    # Capture the contour lines for the legend
+                    constraint_handles.append(contour_set.collections[0])
+                    constraint_labels.append(f'Constraint {idx+1}')
+
             ax.set_xlim(x_min, x_max)
             ax.set_ylim(y_min, y_max)
 
@@ -329,7 +349,12 @@ class PSO(OptimizationAlgorithm):
             if self.analytic_solution is not None:
                 ax.plot(self.analytic_solution[0], self.analytic_solution[1],
                         'gx', label='Analytic Solution', markersize=10, markeredgewidth=2)
+            
             # Adjust legend
+            handles, labels = ax.get_legend_handles_labels()
+            if self.constr_funcs:
+                handles += constraint_handles
+                labels += constraint_labels
             ax.legend(loc='upper right', fontsize='small', markerscale=0.7, framealpha=0.8)
 
             def init():
@@ -417,6 +442,9 @@ class GradientDescent(OptimizationAlgorithm):
         # Middle axis for the animation
         ax = fig.add_subplot(gs[1])
         ax.set_box_aspect(1)  # Make contour plot square
+
+        # Adjust the subplot parameters to reduce left margin
+        plt.subplots_adjust(left=0.05, right=0.95, wspace=0.1)
 
         if self.dimensions == 2:
             x_min, x_max = self.bounds[0]
@@ -576,6 +604,9 @@ class NewtonMethod(OptimizationAlgorithm):
         ax = fig.add_subplot(gs[1])
         ax.set_box_aspect(1)  # Make contour plot square
 
+        # Adjust the subplot parameters to reduce left margin
+        plt.subplots_adjust(left=0.05, right=0.95, wspace=0.1)
+
         if self.dimensions == 2:
             x_min, x_max = self.bounds[0]
             y_min, y_max = self.bounds[1]
@@ -729,6 +760,9 @@ class BFGSMethod(OptimizationAlgorithm):
         # Middle axis for the animation
         ax = fig.add_subplot(gs[1])
         ax.set_box_aspect(1)  # Make contour plot square
+
+        # Adjust the subplot parameters to reduce left margin
+        plt.subplots_adjust(left=0.05, right=0.95, wspace=0.1)
 
         if self.dimensions == 2:
             x_min, x_max = self.bounds[0]
