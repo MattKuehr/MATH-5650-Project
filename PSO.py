@@ -173,9 +173,9 @@ class PSO(OptimizationAlgorithm):
         """
         start_time = time.time()
 
-        # Adjust figure layout to create white space on the sides
+        # Adjust figure layout
         fig = plt.figure(figsize=(15, 6))
-        gs = fig.add_gridspec(1, 3, width_ratios=[1, 5, 1])
+        gs = fig.add_gridspec(1, 3, width_ratios=[0.8, 5, 1.2])
 
         # Left axis for static text
         ax_text_left = fig.add_subplot(gs[0])
@@ -199,6 +199,15 @@ class PSO(OptimizationAlgorithm):
             Z = Z.reshape(X.shape)
             contour = ax.contourf(X, Y, Z, levels=50, cmap='viridis')
             plt.colorbar(contour, ax=ax)
+
+            # Plot the constraint boundaries
+            if self.constr_funcs:
+                for idx, constr_func in enumerate(self.constr_funcs):
+                    # Evaluate the constraint function over the grid
+                    constraint_values = np.array([constr_func([x_val, y_val]) for x_val, y_val in zip(X.flatten(), Y.flatten())])
+                    constraint_values = constraint_values.reshape(X.shape)
+                    # Plot the zero level contour of the constraint function
+                    ax.contour(X, Y, constraint_values, levels=[0], colors='white', linewidths=2, linestyles='dashed')
 
         # Prepare static information text
         static_info = ''
@@ -268,13 +277,14 @@ class PSO(OptimizationAlgorithm):
             best_scat.set_offsets([self.global_best_position])
 
             # Update dynamic text on the right
-            dynamic_info = f'Iteration: {frame}\n'
+            iteration_number = frame + 1  # Adjust iteration count
+            dynamic_info = f'Iteration: {iteration_number}\n'
             dynamic_info += f'Time Elapsed: {current_time:.2f}s\n'
             dynamic_info += f'Best Position: {np.round(self.global_best_position, 4)}\n'
             dynamic_info += f'Best Value: {self.global_best_value:.6f}\n'
             ax_text_right.clear()
             ax_text_right.axis('off')
-            ax_text_right.text(0, 0.5, dynamic_info, fontsize=10, va='center')
+            ax_text_right.text(0.05, 0.5, dynamic_info, fontsize=10, va='center')
 
             self.history['positions'].append(positions.copy())
             self.history['best_positions'].append(self.global_best_position.copy())
@@ -374,6 +384,12 @@ class GradientDescent(OptimizationAlgorithm):
     """
     Gradient Descent optimization algorithm.
     """
+
+    # Init method added
+    def __init__(self, objective_func, bounds, max_iter, constr_funcs=None, analytic_solution=None, alpha=0.001):
+        super().__init__(objective_func, bounds, max_iter, constr_funcs, analytic_solution)
+        self.alpha = alpha  # Step size
+
     def optimize(self):
         """
         Run the Gradient Descent algorithm and visualize the results.
@@ -386,12 +402,9 @@ class GradientDescent(OptimizationAlgorithm):
         self.history['values'].append(self.objective_func(x_current))
         self.history['times'].append(0)
 
-        # Learning rate
-        alpha = 0.001  # Reduced learning rate for stability
-
         # Adjust figure layout
         fig = plt.figure(figsize=(15, 6))
-        gs = fig.add_gridspec(1, 3, width_ratios=[1, 5, 1])
+        gs = fig.add_gridspec(1, 3, width_ratios=[0.8, 5, 1.2])
 
         # Left axis for static text
         ax_text_left = fig.add_subplot(gs[0])
@@ -416,6 +429,15 @@ class GradientDescent(OptimizationAlgorithm):
             contour = ax.contourf(X, Y, Z, levels=50, cmap='viridis')
             plt.colorbar(contour, ax=ax)
 
+            # Plot the constraint boundaries
+            if self.constr_funcs:
+                for idx, constr_func in enumerate(self.constr_funcs):
+                    # Evaluate the constraint function over the grid
+                    constraint_values = np.array([constr_func([x_val, y_val]) for x_val, y_val in zip(X.flatten(), Y.flatten())])
+                    constraint_values = constraint_values.reshape(X.shape)
+                    # Plot the zero level contour of the constraint function
+                    ax.contour(X, Y, constraint_values, levels=[0], colors='white', linewidths=2, linestyles='dashed')
+
         # Prepare static information text
         static_info = 'Gradient Descent Optimization\n\n'
 
@@ -433,6 +455,10 @@ class GradientDescent(OptimizationAlgorithm):
                 elif idx == 2:
                     static_info += r'$x^2 + y^2 - 4 \leq 0$' + '\n'
             static_info += '\n'
+        
+        # Parameters
+        static_info += 'Parameters:\n'
+        static_info += f'Step Size (alpha): {self.alpha}\n\n'
 
         # Analytic solution
         if self.analytic_solution is not None:
@@ -445,6 +471,7 @@ class GradientDescent(OptimizationAlgorithm):
         if self.analytic_solution is not None:
             ax.scatter(self.analytic_solution[0], self.analytic_solution[1],
                        c='green', label='Analytic Solution', marker='x', s=100)
+        
         # Adjust legend
         ax.legend(loc='upper right', fontsize='small', markerscale=0.7, framealpha=0.8)
 
@@ -481,7 +508,7 @@ class GradientDescent(OptimizationAlgorithm):
             current_time = time.time() - start_time
 
             grad = gradient(x_current)
-            x_next = x_current - alpha * grad
+            x_next = x_current - self.alpha * grad
 
             # Apply constraints using projection
             if self.constr_funcs:
@@ -497,13 +524,14 @@ class GradientDescent(OptimizationAlgorithm):
             point_scat.set_offsets([x_current])
 
             # Update dynamic text on the right
-            dynamic_info = f'Iteration: {frame}\n'
+            iteration_number = frame + 1  # Adjust iteration count
+            dynamic_info = f'Iteration: {iteration_number}\n'
             dynamic_info += f'Time Elapsed: {current_time:.2f}s\n'
             dynamic_info += f'Current Position: {np.round(x_current, 4)}\n'
             dynamic_info += f'Objective Value: {value:.6f}\n'
             ax_text_right.clear()
             ax_text_right.axis('off')
-            ax_text_right.text(0, 0.5, dynamic_info, fontsize=10, va='center')
+            ax_text_right.text(0.05, 0.5, dynamic_info, fontsize=10, va='center')
 
             return point_scat,
 
@@ -534,7 +562,7 @@ class NewtonMethod(OptimizationAlgorithm):
 
         # Adjust figure layout
         fig = plt.figure(figsize=(15, 6))
-        gs = fig.add_gridspec(1, 3, width_ratios=[1, 5, 1])
+        gs = fig.add_gridspec(1, 3, width_ratios=[0.8, 5, 1.2])
 
         # Left axis for static text
         ax_text_left = fig.add_subplot(gs[0])
@@ -558,6 +586,15 @@ class NewtonMethod(OptimizationAlgorithm):
             Z = Z.reshape(X.shape)
             contour = ax.contourf(X, Y, Z, levels=50, cmap='viridis')
             plt.colorbar(contour, ax=ax)
+
+            # Plot the constraint boundaries
+            if self.constr_funcs:
+                for idx, constr_func in enumerate(self.constr_funcs):
+                    # Evaluate the constraint function over the grid
+                    constraint_values = np.array([constr_func([x_val, y_val]) for x_val, y_val in zip(X.flatten(), Y.flatten())])
+                    constraint_values = constraint_values.reshape(X.shape)
+                    # Plot the zero level contour of the constraint function
+                    ax.contour(X, Y, constraint_values, levels=[0], colors='white', linewidths=2, linestyles='dashed')
 
         # Prepare static information text
         static_info = "Newton's Method Optimization\n\n"
@@ -641,13 +678,14 @@ class NewtonMethod(OptimizationAlgorithm):
                 point_scat.set_offsets([xk])
 
                 # Update dynamic text on the right
-                dynamic_info = f'Iteration: {frame}\n'
+                iteration_number = frame + 1  # Adjust iteration count
+                dynamic_info = f'Iteration: {iteration_number}\n'
                 dynamic_info += f'Time Elapsed: {time_elapsed:.2f}s\n'
                 dynamic_info += f'Current Position: {np.round(xk, 4)}\n'
                 dynamic_info += f'Objective Value: {value:.6f}\n'
                 ax_text_right.clear()
                 ax_text_right.axis('off')
-                ax_text_right.text(0, 0.5, dynamic_info, fontsize=10, va='center')
+                ax_text_right.text(0.05, 0.5, dynamic_info, fontsize=10, va='center')
 
             return point_scat,
 
@@ -678,7 +716,7 @@ class BFGSMethod(OptimizationAlgorithm):
 
         # Adjust figure layout
         fig = plt.figure(figsize=(15, 6))
-        gs = fig.add_gridspec(1, 3, width_ratios=[1, 5, 1])
+        gs = fig.add_gridspec(1, 3, width_ratios=[0.8, 5, 1.2])
 
         # Left axis for static text
         ax_text_left = fig.add_subplot(gs[0])
@@ -702,6 +740,15 @@ class BFGSMethod(OptimizationAlgorithm):
             Z = Z.reshape(X.shape)
             contour = ax.contourf(X, Y, Z, levels=50, cmap='viridis')
             plt.colorbar(contour, ax=ax)
+
+            # Plot the constraint boundaries
+            if self.constr_funcs:
+                for idx, constr_func in enumerate(self.constr_funcs):
+                    # Evaluate the constraint function over the grid
+                    constraint_values = np.array([constr_func([x_val, y_val]) for x_val, y_val in zip(X.flatten(), Y.flatten())])
+                    constraint_values = constraint_values.reshape(X.shape)
+                    # Plot the zero level contour of the constraint function
+                    ax.contour(X, Y, constraint_values, levels=[0], colors='white', linewidths=2, linestyles='dashed')
 
         # Prepare static information text
         static_info = 'BFGS Optimization\n\n'
@@ -786,13 +833,14 @@ class BFGSMethod(OptimizationAlgorithm):
                 point_scat.set_offsets([xk])
 
                 # Update dynamic text on the right
-                dynamic_info = f'Iteration: {frame}\n'
+                iteration_number = frame + 1  # Adjust iteration count
+                dynamic_info = f'Iteration: {iteration_number}\n'
                 dynamic_info += f'Time Elapsed: {time_elapsed:.2f}s\n'
                 dynamic_info += f'Current Position: {np.round(xk, 4)}\n'
                 dynamic_info += f'Objective Value: {value:.6f}\n'
                 ax_text_right.clear()
                 ax_text_right.axis('off')
-                ax_text_right.text(0, 0.5, dynamic_info, fontsize=10, va='center')
+                ax_text_right.text(0.05, 0.5, dynamic_info, fontsize=10, va='center')
 
             return point_scat,
 
