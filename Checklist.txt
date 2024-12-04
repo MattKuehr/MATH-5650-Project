@@ -1,0 +1,25 @@
+To do code:
+
+-Get claude to comment code
+
+To do presentation:
+
+DEMONSTRATION
+
+-Demonstrate PSO in action on Rastrigin function (unonstrained)
+>Change w
+>Change c1
+>Change c2
+
+-Demonstrate PSO on Rosenbrock function (constrained)
+
+-Demonstrate PSO on non-differentiable functions (unconstrained)
+
+VERSUS
+
+-Demonstrate PSO vs standard methods on strictly convex function (unconstrained) (worse)
+
+-Demonstrate PSO vs standard methods on Rastrigin function (unconstrained) (better)
+
+-Demonstrate PSO vs standard methods on non-convex function (unconstrained) (better)
+
