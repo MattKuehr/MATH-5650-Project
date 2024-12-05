@@ -14,11 +14,17 @@ DEMONSTRATION
 -Demonstrate PSO on Rosenbrock function (constrained)
 
 -Demonstrate PSO on non-differentiable functions (unconstrained)
+f(x,y) = \frac{-1}{\ciel{\sqrt{x^2 +y^2}}}
 
 VERSUS
 
 -Demonstrate PSO vs standard methods on strictly convex function (unconstrained) (worse)
+e^{x^2 + y^2} + ln(1 + x^2 + y^2)
 
+-Demonstrate PSO vs standard methods on Rastrigin function (unconstrained) (better)
+
+-Demonstrate PSO vs standard methods on non-convex function (unconstrained) (better)
+x^2 + y^2 - 1(x^2 + y^2 -1)^2
 -Demonstrate PSO vs standard methods on Rastrigin function (unconstrained) (better)
 
 -Demonstrate PSO vs standard methods on non-convex function (unconstrained) (better)
