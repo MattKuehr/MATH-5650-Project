@@ -7,7 +7,7 @@ import time
 from scipy.optimize import minimize
 
 '''
-Rastrigin Function BELOW
+Rastrigin Function (not-convex) BELOW
 '''
 
 # Define the bivariate Rastrigin function
@@ -39,6 +39,8 @@ def rastrigin_hessian(x):
 
 TEX_STRING_RASTRIGIN = r'$f(x, y) = 20 + \left(x^2 - 10\cos(2\pi x)\right) + \left(y^2 - 10\cos(2\pi y)\right)$' + '\n\n'
 
+# MIN @ (0,0)
+
 
 '''
 Rosenbrock Function (not-convex) BELOW
@@ -49,15 +51,15 @@ def rosenbrock_function(x):
     x = np.array(x)  # Convert input to a NumPy array
     if len(x) != 2:
         raise ValueError("This function is bivariate; input must have exactly two variables.")
-    return 100 * (x[1] - x[0]**2)**2 + (1 - x[0])**2
+    return 5 * (x[1] - x[0]**2)**2 + (1 - x[0])**2 
 
 # Analytical gradient of the bivariate Rosenbrock function
 def rosenbrock_gradient(x):
     x = np.array(x)  # Convert input to a NumPy array
     if len(x) != 2:
         raise ValueError("This function is bivariate; input must have exactly two variables.")
-    grad_x = -400 * (x[1] - x[0]**2) * x[0] - 2 * (1 - x[0])
-    grad_y = 200 * (x[1] - x[0]**2)
+    grad_x = -20 * (x[1] - x[0]**2) * x[0] - 2 * (1 - x[0])
+    grad_y = 10 * (x[1] - x[0]**2)
     return np.array([grad_x, grad_y])
 
 # Analytical Hessian of the bivariate Rosenbrock function
@@ -66,16 +68,17 @@ def rosenbrock_hessian(x):
     if len(x) != 2:
         raise ValueError("This function is bivariate; input must have exactly two variables.")
     hessian = np.array([
-        [1200 * x[0]**2 - 400 * x[1] + 2, -400 * x[0]],
-        [-400 * x[0], 200]
+        [60 * x[0]**2 - 20 * x[1] + 2, -20 * x[0]],
+        [-20 * x[0], 10]
     ])
     return hessian
 
-TEX_STRING_ROSENBROCK = r'$f(x, y) = 100(y - x^2)^2 + (1 - x)^2$' + '\n\n'
+TEX_STRING_ROSENBROCK = r'$f(x, y) = 5(y - x^2)^2 + (1 - x)^2$' + '\n\n'
 
+# MIN @ (1,1)
 
 '''
-Bivariate Convex Function BELOW
+Convex Function BELOW
 '''
 
 # Define a bivariate convex function
@@ -95,44 +98,47 @@ def convex_bivariate_hessian(x):
 
 TEX_STRING_CONVEX_BIVARIATE = r'$f(x, y) = 4x^2 + 2y^2 + xy$' + '\n\n'
 
+# MIN @ (0,0)
+
 '''
-Sphere Deviation Function (non-convex) BELOW
+Non-Convex Function BELOW
 '''
 
-# Define the bivariate sphere deviation function
-def sphere_deviation_function(x):
+# Define the non-convex function with the frame of reference shifted upward in the y-direction
+def non_convex_function(x):
     x = np.array(x)  # Convert input to a NumPy array
     if len(x) != 2:
         raise ValueError("This function is bivariate; input must have exactly two variables.")
-    deviation = x[0]**2 + x[1]**2 - 1
-    return -(x[0]**2 + x[1]**2 - deviation**2)
+    return (x[0] - 2)**2 + 3 * (x[1] - 25)**4 - 4 * x[0] * (x[1] - 25)
 
-# Analytical gradient of the bivariate sphere deviation function
-def sphere_deviation_gradient(x):
+# Analytical gradient of the non-convex function
+def non_convex_gradient(x):
     x = np.array(x)  # Convert input to a NumPy array
     if len(x) != 2:
         raise ValueError("This function is bivariate; input must have exactly two variables.")
-    deviation = x[0]**2 + x[1]**2 - 1
-    grad_x = -(2 * x[0] - 4 * deviation * x[0])
-    grad_y = -(2 * x[1] - 4 * deviation * x[1])
+    grad_x = 2 * (x[0] - 2) - 4 * (x[1] - 25)
+    grad_y = 12 * (x[1] - 25)**3 - 4 * x[0]
     return np.array([grad_x, grad_y])
 
-# Analytical Hessian of the bivariate sphere deviation function
-def sphere_deviation_hessian(x):
+# Analytical Hessian of the non-convex function
+def non_convex_hessian(x):
     x = np.array(x)  # Convert input to a NumPy array
     if len(x) != 2:
         raise ValueError("This function is bivariate; input must have exactly two variables.")
-    deviation = x[0]**2 + x[1]**2 - 1
     hessian = np.array([
-        [2 - 4 * deviation + 4 * x[0]**2, 4 * x[0] * x[1]],
-        [4 * x[0] * x[1], 2 - 4 * deviation + 4 * x[1]**2]
+        [2, -4],
+        [-4, 36 * (x[1] - 25)**2]
     ])
-    return -hessian
+    return hessian
 
-TEX_STRING_SPHERE_DEV = r'$f(x, y) = -\left(x^2 + y^2 - \left(x^2 + y^2 - 1\right)^2\right)$' + '\n\n'
+TEX_STRING_NON_CONVEX = r'$f(x, y) = (x - 2)^2 + 3(y - 25)^4 - 4x(y - 25)$' + '\n\n'
+
+# MIN @ (-10, 10)
+
+# Constrained MIN @ (-0.823, 1.823)
 
 '''
-Nondifferentiable Function BELOW
+Non-differentiable Function BELOW
 '''
 
 def non_differentiable_function(x):
@@ -148,6 +154,8 @@ def dummy_hessian(x):
     return None
 
 TEX_STRING_NODIFF = r'$f(x, y) = \frac{-1}{\lceil \sqrt{x^2 + y^2 + 0.01} \rceil}$' + '\n\n'
+
+# MIN @ (0,0)
 
 
 '''
@@ -537,7 +545,7 @@ class GradientDescent(OptimizationAlgorithm):
     """
 
     # Init method added
-    def __init__(self, objective_func, bounds, max_iter, constr_funcs=None, analytic_solution=None, alpha=0.01):
+    def __init__(self, objective_func, bounds, max_iter, constr_funcs=None, analytic_solution=None, alpha=0.025): # Was 0.025
         super().__init__(objective_func, bounds, max_iter, constr_funcs, analytic_solution)
         self.alpha = alpha  # Step size
 
@@ -1043,8 +1051,8 @@ if __name__ == "__main__":
     functions = {
         1: ("Rastrigin", rastrigin_function, rastrigin_gradient, rastrigin_hessian, TEX_STRING_RASTRIGIN),
         2: ("Rosenbrock", rosenbrock_function, rosenbrock_gradient, rosenbrock_hessian, TEX_STRING_ROSENBROCK),
-        3: ("Convex Bivariate", convex_bivariate_function, convex_bivariate_gradient, convex_bivariate_hessian, TEX_STRING_CONVEX_BIVARIATE),
-        4: ("Sphere Deviation", sphere_deviation_function, sphere_deviation_gradient, sphere_deviation_hessian, TEX_STRING_SPHERE_DEV),
+        3: ("Convex", convex_bivariate_function, convex_bivariate_gradient, convex_bivariate_hessian, TEX_STRING_CONVEX_BIVARIATE),
+        4: ("Non-Convex", non_convex_function, non_convex_gradient, non_convex_hessian, TEX_STRING_NON_CONVEX),
         5: ("Non-Differentiable Function", non_differentiable_function, dummy_gradient, dummy_hessian, TEX_STRING_NODIFF)
     }
 
@@ -1088,7 +1096,7 @@ if __name__ == "__main__":
     if mode_input.strip() == '1':
         # Initialize PSO with constraints and analytic solution
         pso = PSO(objective_function, bounds, num_particles=30, max_iter=50,
-                  w=0.5, c1=1.5, c2=1.5, constr_funcs=constr_funcs, analytic_solution=analytic_solution)
+                  w=0.5, c1=1.5, c2=1.5, constr_funcs=constr_funcs, analytic_solution=analytic_solution) 
 
         # Run optimization
         pso.optimize()
@@ -1097,3 +1105,5 @@ if __name__ == "__main__":
         run_comparison_mode(objective_function, bounds, max_iter=50, constr_funcs=constr_funcs, analytic_solution=analytic_solution)
     else:
         print("Invalid input. Exiting.")
+
+# w = 0.5, c1 = 1.5, c2 = 1.5
