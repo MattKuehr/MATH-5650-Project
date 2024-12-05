@@ -25,7 +25,5 @@ e^{x^2 + y^2} + ln(1 + x^2 + y^2)
 
 -Demonstrate PSO vs standard methods on non-convex function (unconstrained) (better)
 x^2 + y^2 - 1(x^2 + y^2 -1)^2
+
 -Demonstrate PSO vs standard methods on Rastrigin function (unconstrained) (better)
-
--Demonstrate PSO vs standard methods on non-convex function (unconstrained) (better)
-
